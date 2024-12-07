@@ -2,11 +2,18 @@ Shader "Custom/BubbleShader"
 {
     Properties
     {
-        _Glossiness ("Smoothness", Range(0,1)) = 0.5
-        _Metallic ("Metallic", Range(0,1)) = 0.0
+        _Glossiness ("Smoothness", Range(0,1)) = 1
+        _Metallic ("Metallic", Range(0,1)) = 0
+        
+        _ChangeShapeScale("Change Shape Scale", Range(0, 0.5)) = 0.05
+        _ChangeShapenSpeed("Change Shape Speed", Range(0, 0.5)) = 0.05
+
         _ClickPosition ("Click Position", Vector) = (0, 0, 0, 0)
-        _DeformStrength ("Deform Strength", Range(0, 1)) = 0.5
-        _DeformRadius ("Deform Radius", Range(0.1, 1)) = 0.3
+        _BurstRadius("Current Burst Radius", Range(0, 1)) = 0
+
+        _ColorChangeValue("Color Change Value", Range(1, 100)) = 5
+        _ColorValue("Color Value", Range(0, 0.5)) = 0.3
+        _RimValue("Rim Value", Range(1, 100)) = 1
     }
     SubShader
     {
@@ -14,35 +21,21 @@ Shader "Custom/BubbleShader"
         LOD 200
 
         CGPROGRAM
-        #pragma surface surf Standard vertex:vert fragment:frag alpha:fade
+        #pragma surface surf Standard vertex:vert alpha:fade
         #pragma target 3.0
 
         half _Glossiness;
         half _Metallic;
+
         float4 _ClickPosition;
-        float _DeformStrength;
-        float _DeformRadius;
+        float _BurstRadius;
 
-        float GetAddPos(float pos, int offset) {
-            float speed = 0.5 + offset * 0.25;
-            return sin(pos * 10 + _Time.y * speed) * 0.02;
-        }
+        float _ChangeShapeScale;
+        float _ChangeShapenSpeed;
 
-        void vert(inout appdata_full v) {
-            v.vertex.x += GetAddPos(v.vertex.x, 0);
-            v.vertex.y += GetAddPos(v.vertex.y, 1);
-            v.vertex.z += GetAddPos(v.vertex.z, 2);
-
-            //// 클릭 위치와 정점 위치 간 거리 계산
-            //float distanceBetween = distance(v.vertex.xyz, _ClickPosition.xyz);
-
-            //// 거리가 일정 반경 이내일 때만 변형
-            //if (distanceBetween < _DeformRadius)
-            //{
-            //    float deform = exp(-distanceBetween * 10) * _DeformStrength;
-            //    v.vertex.z -= deform; // Z축으로 움푹 들어가게
-            //}
-        }
+        float _ColorChangeValue;
+        float _ColorValue;
+        float _RimValue;
 
         struct Input
         {
@@ -50,18 +43,43 @@ Shader "Custom/BubbleShader"
             float3 worldPos;
         };
 
+        float GetAddPos(float pos, int offset) {
+            float speed = _ChangeShapenSpeed + offset * 0.25;
+            return sin(pos * 10 + _Time.y * speed) * _ChangeShapeScale;
+        }
+
+        void vert(inout appdata_full v) {
+            // 버블이 일렁거려 보이도록 vertex 변경
+            v.vertex.x += GetAddPos(v.vertex.x, 2);
+            v.vertex.y += GetAddPos(v.vertex.y, 3);
+            v.vertex.z += GetAddPos(v.vertex.z, 1);
+        }
+
         void surf (Input IN, inout SurfaceOutputStandard o)
         {
-
-            float3 col = sin(_Time.w + IN.worldPos * 10) * 0.3 + 0.7;
-            o.Albedo = col;
-
-            float rim = dot(o.Normal, IN.viewDir);
-            o.Alpha = saturate(pow(1 - rim, 1) + 0.1);
+            float3 col = sin(IN.worldPos * _ColorChangeValue) * _ColorValue + (1 - _ColorValue);
+            
+            float rimFactor = saturate(1 - dot(o.Normal, IN.viewDir));
+            float rim = pow(rimFactor, _RimValue);
+            
+            // 클릭된 위치와 현재 위치 간 거리 계산
+            float distanceBetween = distance(IN.worldPos, _ClickPosition.xyz);
+            if (distanceBetween < _BurstRadius) {
+                o.Alpha = 0;
+            }
+            else if(distanceBetween >= _BurstRadius && distanceBetween < _BurstRadius + 0.01) {
+                o.Albedo = float3(1, 1, 1);
+                o.Alpha = 1;
+            }
+            else {
+                o.Albedo = col;
+                o.Alpha = rim;
+            }
 
             o.Metallic = _Metallic;
             o.Smoothness = _Glossiness;
         }
+
         ENDCG
     }
     FallBack "Diffuse"

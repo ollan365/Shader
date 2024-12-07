@@ -3,20 +3,23 @@ using UnityEngine;
 
 public class BubbleMovement : MonoBehaviour
 {
+    [Range(0.01f, 10f)] [SerializeField] private float burstTime;
+    [SerializeField] private bool wantToMove = true;
+    private float speed;
     private Coroutine movementCoroutine;
 
     private void OnEnable()
     {
-        movementCoroutine = StartCoroutine(Move());
+        if(wantToMove) movementCoroutine = StartCoroutine(Move());
     }
     private void OnDisable()
     {
-        StopCoroutine(movementCoroutine);
+        if(movementCoroutine != null) StopCoroutine(movementCoroutine);
     }
 
     private IEnumerator Move()
     {
-        float speed = Random.Range(0, 3) + 0.5f;
+        speed = Random.Range(0, 3) + 0.5f;
 
         while (true)
         {
@@ -44,21 +47,33 @@ public class BubbleMovement : MonoBehaviour
             yield return new WaitForFixedUpdate();
         }
     }
+
     private void OnMouseDown()
     {
-        // 마우스 위치를 스크린 좌표로 가져옴
         Vector3 mouseScreenPosition = Input.mousePosition;
 
-        // 스크린 좌표를 월드 좌표로 변환
-        Vector3 mouseWorldPosition = Camera.main.ScreenToWorldPoint(new Vector3(
-            mouseScreenPosition.x,
-            mouseScreenPosition.y,
-            Camera.main.WorldToScreenPoint(transform.position).z // 오브젝트와 카메라 간 거리
-        ));
+        Ray ray = Camera.main.ScreenPointToRay(mouseScreenPosition);
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            Vector3 worldPosition = hit.point;
+            gameObject.GetComponent<Renderer>().material.SetVector("_ClickPosition", new Vector4(worldPosition.x, worldPosition.y, worldPosition.z, 1));
+        }
 
-        // 월드 좌표를 로컬 좌표로 변환
-        Vector3 localPosition = transform.InverseTransformPoint(mouseWorldPosition);
-        Vector4 clickPosition = new Vector4(localPosition.x, localPosition.y, localPosition.z, 1);
-        gameObject.GetComponent<Renderer>().material.SetVector("_ClickPosition", clickPosition);
+        // 비눗방울을 터뜨림
+        StartCoroutine(DelaySetActiveFalse());
+    }
+
+    private IEnumerator DelaySetActiveFalse()
+    {
+        float currentTime = 0, maxDistance = gameObject.transform.localScale.x * 2;
+        while(currentTime < burstTime)
+        {
+            currentTime += Time.deltaTime;
+            float currentRadius = Mathf.Lerp(0, maxDistance, currentTime / burstTime);
+            gameObject.GetComponent<Renderer>().material.SetFloat("_BurstRadius", currentRadius);
+            yield return null;
+        }
+        gameObject.GetComponent<Renderer>().material.SetFloat("_BurstRadius", 0);
+        gameObject.SetActive(false);
     }
 }

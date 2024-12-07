@@ -69,10 +69,12 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _Amplitude: 0
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _Frequency: 5
     - _FresnelPower: 2
     - _GlossMapScale: 1
     - _Glossiness: 0.5
@@ -88,13 +90,16 @@ Material:
     - _SpIntensity: 0
     - _SpPower: 10
     - _SpecularHighlights: 1
+    - _Speed: 10
     - _SrcBlend: 1
     - _UVSec: 0
     - _WaveAmplitude: 0.1
     - _WaveSpeed: 1
     - _ZWrite: 1
+    - _tintAmount: 0.5
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorA: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _LightColor: {r: 0, g: 0.08014178, b: 1, a: 1}
     - _SpColor: {r: 1, g: 1, b: 1, a: 1}

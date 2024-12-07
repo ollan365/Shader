@@ -63,16 +63,7 @@ public class BubbleManager : MonoBehaviour
     private void RandomBubble(GameObject bubble)
     {
         // 랜덤한 좌표에 랜덤한 크기로 버블을 만들고 활성화
-        while (true)
-        {
-            float randomX = Random.Range(-8, -2);
-            float randomY = Random.Range(-1, 4);
-
-            if (randomX > -6.5f && randomY > 0.5f) continue;
-
-            bubble.transform.localPosition = new Vector3(randomX, -1, 0);
-            break;
-        }
+        bubble.transform.localPosition = new Vector3(-6.5f, Random.Range(0, 4), 0);
 
         float randomScale = Random.Range(1f, 2.5f);
         bubble.transform.localScale = new Vector3(randomScale, randomScale, randomScale);

@@ -62,7 +62,17 @@ Material:
     m_Ints: []
     m_Floats:
     - _BumpScale: 1
+    - _BurstRadius: 0
+    - _ChangePositionScale: 0.25
+    - _ChangePositionSpeed: 0.5
+    - _ChangeShapeScale: 0.05
+    - _ChangeShapenSpeed: 0.05
+    - _ClickPositionRadius: 0
+    - _ColorChangeValue: 5
+    - _ColorValue: 0.3
     - _Cutoff: 0.5
+    - _DeformRadius: 0.3
+    - _DeformStrength: 1
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
     - _GlossMapScale: 1
@@ -72,12 +82,14 @@ Material:
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _RimValue: 1
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 1
     m_Colors:
+    - _ClickPosition: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 0, g: 0, b: 0, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
   m_BuildTextureStacks: []
