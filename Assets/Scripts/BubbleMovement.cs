@@ -65,7 +65,7 @@ public class BubbleMovement : MonoBehaviour
 
     private IEnumerator DelaySetActiveFalse()
     {
-        float currentTime = 0, maxDistance = gameObject.transform.localScale.x * 2;
+        float currentTime = 0, maxDistance = gameObject.transform.localScale.x * (2 + speed * burstTime);
         while(currentTime < burstTime)
         {
             currentTime += Time.deltaTime;
